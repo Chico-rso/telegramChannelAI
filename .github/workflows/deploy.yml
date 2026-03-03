@@ -13,7 +13,7 @@ jobs:
       APP_DIR: /var/www/telegramChannelAI
       PM2_APP_NAME: telegram-channel-ai
       NODE_BINARY: /root/.nvm/versions/node/v20.19.5/bin/node
-      NPM_BINARY: /root/.nvm/versions/node/v20.19.5/bin/npm
+      NPM_CLI: /root/.nvm/versions/node/v20.19.5/lib/node_modules/npm/bin/npm-cli.js
 
     steps:
       - name: Checkout repository
@@ -65,5 +65,5 @@ jobs:
         run: |
           ssh "root@${{ secrets.SERVER_HOST }}" \
             "chmod +x ${APP_DIR}/scripts/server-deploy.sh && \
-             APP_DIR=${APP_DIR} PM2_APP_NAME=${PM2_APP_NAME} NODE_BINARY=${NODE_BINARY} NPM_BINARY=${NPM_BINARY} \
+             APP_DIR=${APP_DIR} PM2_APP_NAME=${PM2_APP_NAME} NODE_BINARY=${NODE_BINARY} NPM_CLI=${NPM_CLI} \
              bash ${APP_DIR}/scripts/server-deploy.sh"

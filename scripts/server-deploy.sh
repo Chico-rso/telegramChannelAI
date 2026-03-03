@@ -4,10 +4,15 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/var/www/telegramChannelAI}"
 PM2_APP_NAME="${PM2_APP_NAME:-telegram-channel-ai}"
 NODE_BINARY="${NODE_BINARY:-/root/.nvm/versions/node/v20.19.5/bin/node}"
-NPM_BINARY="${NPM_BINARY:-/root/.nvm/versions/node/v20.19.5/bin/npm}"
+NPM_CLI="${NPM_CLI:-/root/.nvm/versions/node/v20.19.5/lib/node_modules/npm/bin/npm-cli.js}"
 
 if [ ! -x "$NODE_BINARY" ]; then
   echo "Node binary not found at $NODE_BINARY" >&2
+  exit 1
+fi
+
+if [ ! -f "$NPM_CLI" ]; then
+  echo "npm cli not found at $NPM_CLI" >&2
   exit 1
 fi
 
@@ -19,8 +24,8 @@ fi
 cd "$APP_DIR"
 
 "$NODE_BINARY" -v
-"$NPM_BINARY" -v
+"$NODE_BINARY" "$NPM_CLI" -v
 
-"$NPM_BINARY" exec prisma migrate deploy
+"$NODE_BINARY" "$NPM_CLI" exec prisma migrate deploy
 PM2_APP_NAME="$PM2_APP_NAME" APP_DIR="$APP_DIR" NODE_BINARY="$NODE_BINARY" pm2 startOrRestart ecosystem.config.cjs
 pm2 save
