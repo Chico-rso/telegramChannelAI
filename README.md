@@ -275,6 +275,54 @@ Repository secrets expected by the workflow:
 
 `DEPLOY_ENV` should contain the full production `.env` file as multiline text.
 
+## Railway migration
+
+This is the recommended path if OpenAI rejects requests from your current VPS region.
+
+Railway supports config-as-code via `railway.toml`, including pre-deploy commands and healthchecks, and allows changing the deployment region per service. See the official docs:
+
+- [Config as Code](https://docs.railway.com/config-as-code/reference)
+- [Healthchecks](https://docs.railway.com/reference/healthchecks)
+- [Regions](https://docs.railway.com/deployments/regions)
+- [PostgreSQL](https://docs.railway.com/guides/postgresql)
+- [Redis](https://docs.railway.com/guides/redis)
+
+Recommended Railway layout:
+
+1. Create a new Railway project.
+2. Add the app service from this GitHub repository.
+3. Add a PostgreSQL service in the same Railway project.
+4. Add a Redis service in the same Railway project.
+5. Deploy the app service to a supported region such as EU or US.
+
+Set these app variables in Railway:
+
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHANNEL_ID`
+- `DEFAULT_USER_EMAIL`
+- `DEFAULT_USER_NAME`
+- `DEFAULT_PROJECT_NAME`
+- `DEFAULT_PROJECT_SLUG`
+- `DEFAULT_PROJECT_TIMEZONE`
+- `DEFAULT_PROJECT_LANGUAGE`
+- `DAILY_GENERATION_CRON`
+- `CONTENT_TONE`
+- `CONTENT_AUDIENCE`
+- `GENERATE_API_KEY`
+
+Use Railway service references for data services:
+
+- `DATABASE_URL=${{Postgres.DATABASE_URL}}`
+- `REDIS_URL=${{Redis.REDIS_URL}}`
+
+For Railway runtime:
+
+- do not set `HOST`
+- Railway will inject `PORT`
+- the repository now contains a real Prisma migration, so Railway can run `npx prisma migrate deploy` before startup
+
 ## SaaS readiness notes
 
 - `Project` is isolated as a tenant boundary.
