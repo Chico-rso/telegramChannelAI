@@ -34,6 +34,7 @@ export function validateEnv(config: EnvShape): EnvShape {
     DEFAULT_PROJECT_NAME: requireString(config, 'DEFAULT_PROJECT_NAME'),
     DEFAULT_PROJECT_SLUG: requireString(config, 'DEFAULT_PROJECT_SLUG'),
     PORT: toNumber(config, 'PORT', 3000),
+    REDIS_URL: config.REDIS_URL ? String(config.REDIS_URL) : undefined,
     REDIS_PORT: toNumber(config, 'REDIS_PORT', 6379),
     REDIS_DB: toNumber(config, 'REDIS_DB', 0),
     JOB_ATTEMPTS: toNumber(config, 'JOB_ATTEMPTS', 5),

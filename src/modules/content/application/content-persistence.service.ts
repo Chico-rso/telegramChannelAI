@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GeneratedContentStatus } from '@prisma/client';
+import { GeneratedContentStatus, Prisma } from '@prisma/client';
 import { StructuredTelegramPost } from '../../../core/domain/content.types';
 import { PrismaService } from '../../../infra/database/prisma.service';
 
@@ -25,7 +25,7 @@ export class ContentPersistenceService {
         cta: params.post.cta,
         body: params.body,
         llmModel: params.model,
-        metadata: params.post,
+        metadata: params.post as unknown as Prisma.InputJsonValue,
       },
     });
   }

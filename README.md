@@ -255,6 +255,23 @@ This gives both adapter-level resiliency and queue-level replay behavior.
 7. Start with `pm2 start dist/main.js --name telegram-ai`.
 8. Put Nginx in front if you need HTTPS and a stable domain.
 
+## GitHub Actions deployment
+
+Recommended for a low-memory VPS:
+
+1. Keep only the NestJS app on the VPS.
+2. Use managed PostgreSQL and managed Redis.
+3. Build in GitHub Actions.
+4. Deploy built artifacts to the server and restart via `pm2`.
+
+Repository secrets expected by the workflow:
+
+- `SERVER_HOST`
+- `SERVER_SSH_KEY`
+- `DEPLOY_ENV`
+
+`DEPLOY_ENV` should contain the full production `.env` file as multiline text.
+
 ## SaaS readiness notes
 
 - `Project` is isolated as a tenant boundary.

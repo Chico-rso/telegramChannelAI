@@ -1,0 +1,69 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      APP_DIR: /var/www/telegramChannelAI
+      PM2_APP_NAME: telegram-channel-ai
+      NODE_BINARY: /root/.nvm/versions/node/v20.19.5/bin/node
+      NPM_BINARY: /root/.nvm/versions/node/v20.19.5/bin/npm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build application
+        run: npm run build
+
+      - name: Prune dev dependencies
+        run: npm prune --omit=dev
+
+      - name: Prepare SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync release to server
+        run: |
+          rsync -az --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "src" \
+            --exclude "tsconfig.json" \
+            --exclude "tsconfig.build.json" \
+            --exclude "README.md" \
+            ./ "root@${{ secrets.SERVER_HOST }}:${APP_DIR}/"
+
+      - name: Upload production environment file
+        run: |
+          ssh "root@${{ secrets.SERVER_HOST }}" "cat > ${APP_DIR}/.env" <<'EOF'
+          ${{ secrets.DEPLOY_ENV }}
+          EOF
+
+      - name: Run remote deploy script
+        run: |
+          ssh "root@${{ secrets.SERVER_HOST }}" \
+            "chmod +x ${APP_DIR}/scripts/server-deploy.sh && \
+             APP_DIR=${APP_DIR} PM2_APP_NAME=${PM2_APP_NAME} NODE_BINARY=${NODE_BINARY} NPM_BINARY=${NPM_BINARY} \
+             bash ${APP_DIR}/scripts/server-deploy.sh"
