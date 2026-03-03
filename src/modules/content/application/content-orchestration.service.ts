@@ -48,6 +48,7 @@ export class ContentOrchestrationService {
       throw new NotFoundException(`Active project not found for slug ${payload.projectSlug}`);
     }
 
+    const recentTopics = await this.topicSelectionService.getRecentTopics(project.id);
     const topic = await this.topicSelectionService.selectTopic(project.id);
     const prompt = this.contentPromptFactory.build({
       projectName: project.name,
@@ -57,6 +58,7 @@ export class ContentOrchestrationService {
       tone: project.contentTone ?? this.configService.get<string>('CONTENT_TONE', 'clear and practical'),
       language: project.language,
       topic,
+      recentTopics,
     });
     const post = await this.llmContentGenerator.generateStructuredPost(prompt);
     const message = this.publishingFormatterService.toTelegramMessage(post);

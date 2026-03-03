@@ -6,15 +6,20 @@ import { TOPIC_CATALOG } from '../domain/topic-catalog';
 export class TopicSelectionService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async selectTopic(projectId: string): Promise<string> {
+  async getRecentTopics(projectId: string, limit = 14): Promise<string[]> {
     const recentTopics = await this.prismaService.generatedContent.findMany({
       where: { projectId },
       orderBy: { createdAt: 'desc' },
-      take: 10,
+      take: limit,
       select: { topic: true },
     });
 
-    const usedTopics = new Set(recentTopics.map((item) => item.topic));
+    return recentTopics.map((item) => item.topic);
+  }
+
+  async selectTopic(projectId: string): Promise<string> {
+    const recentTopics = await this.getRecentTopics(projectId, 21);
+    const usedTopics = new Set(recentTopics);
     const availableTopics = TOPIC_CATALOG.filter((topic) => !usedTopics.has(topic));
     const source = availableTopics.length > 0 ? availableTopics : TOPIC_CATALOG;
     const randomIndex = Math.floor(Math.random() * source.length);
