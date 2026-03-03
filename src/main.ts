@@ -24,9 +24,10 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
 
   const port = configService.get<number>('PORT', 3000);
-  await app.listen(port);
+  const host = configService.get<string>('HOST', '0.0.0.0');
+  await app.listen(port, host);
 
-  logger.log(`Application started on port ${port}`);
+  logger.log(`Application started on ${host}:${port}`);
 }
 
 bootstrap();

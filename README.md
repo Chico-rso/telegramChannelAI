@@ -117,6 +117,7 @@ Copy `.env.example` to `.env` and fill in:
 
 ```bash
 NODE_ENV=development
+HOST=0.0.0.0
 PORT=3000
 APP_NAME=telegram-channel-ai
 LOG_LEVEL=info
@@ -132,6 +133,7 @@ OPENAI_MODEL=gpt-4.1-mini
 
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHANNEL_ID=@your_channel_or_-1001234567890
+GENERATE_API_KEY=change_me_for_production
 
 DEFAULT_USER_EMAIL=owner@example.com
 DEFAULT_USER_NAME=Project Owner
@@ -206,13 +208,14 @@ npx prisma migrate deploy
 ## API endpoints
 
 - `GET /health` checks PostgreSQL and Redis connectivity
-- `POST /generate` queues manual content generation
+- `POST /generate` queues manual content generation and requires `x-api-key` when `GENERATE_API_KEY` is set
 
 Manual trigger example:
 
 ```bash
 curl -X POST http://localhost:3000/generate \
   -H "Content-Type: application/json" \
+  -H "x-api-key: change_me_for_production" \
   -d '{"projectSlug":"ai-without-complexity"}'
 ```
 
