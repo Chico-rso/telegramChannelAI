@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum GeneratedContentStatus {
+  DRAFT
+  PUBLISHED
+  FAILED
+}
+
+enum PublicationStatus {
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id                 String             @id @default(cuid())
+  ownerId            String
+  slug               String             @unique
+  name               String
+  description        String?
+  timezone           String             @default("UTC")
+  language           String             @default("ru")
+  telegramChannelId  String
+  contentTone        String?
+  targetAudience     String?
+  isActive           Boolean            @default(true)
+  owner              User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  generatedContents  GeneratedContent[]
+  publicationLogs    PublicationLog[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([ownerId])
+  @@index([isActive])
+}
+
+model GeneratedContent {
+  id             String                  @id @default(cuid())
+  projectId      String
+  topic          String
+  title          String
+  explanation    String
+  copyBlock      String
+  exampleResult  String
+  cta            String
+  body           String
+  status         GeneratedContentStatus  @default(DRAFT)
+  llmModel       String
+  metadata       Json?
+  project        Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  publicationLog PublicationLog?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  @@index([projectId, createdAt])
+  @@index([status])
+}
+
+model PublicationLog {
+  id                 String            @id @default(cuid())
+  projectId          String
+  generatedContentId String            @unique
+  provider           String
+  status             PublicationStatus
+  externalMessageId  String?
+  destination        String
+  responsePayload    Json?
+  errorMessage       String?
+  publishedAt        DateTime?
+  project            Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  generatedContent   GeneratedContent  @relation(fields: [generatedContentId], references: [id], onDelete: Cascade)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([projectId, createdAt])
+  @@index([status])
+}
