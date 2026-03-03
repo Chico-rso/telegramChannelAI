@@ -23,6 +23,8 @@ fi
 
 cd "$APP_DIR"
 
+export PATH="$(dirname "$NODE_BINARY"):$PATH"
+
 "$NODE_BINARY" -v
 "$NODE_BINARY" "$NPM_CLI" -v
 
