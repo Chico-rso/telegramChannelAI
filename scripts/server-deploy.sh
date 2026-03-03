@@ -31,6 +31,6 @@ export PATH="$(dirname "$NODE_BINARY"):$PATH"
 rm -rf node_modules
 "$NODE_BINARY" "$NPM_CLI" ci --omit=dev
 "$NODE_BINARY" "$NPM_CLI" exec prisma generate
-"$NODE_BINARY" "$NPM_CLI" exec prisma migrate deploy
+"$NODE_BINARY" "$NPM_CLI" exec prisma db push --accept-data-loss --skip-generate
 PM2_APP_NAME="$PM2_APP_NAME" APP_DIR="$APP_DIR" NODE_BINARY="$NODE_BINARY" pm2 startOrRestart ecosystem.config.cjs
 pm2 save
