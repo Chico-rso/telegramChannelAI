@@ -49,6 +49,7 @@ jobs:
           rsync -az --delete \
             --exclude ".git" \
             --exclude ".github" \
+            --exclude "node_modules" \
             --exclude "src" \
             --exclude "tsconfig.json" \
             --exclude "tsconfig.build.json" \
