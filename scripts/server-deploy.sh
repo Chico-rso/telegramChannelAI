@@ -28,6 +28,7 @@ export PATH="$(dirname "$NODE_BINARY"):$PATH"
 "$NODE_BINARY" -v
 "$NODE_BINARY" "$NPM_CLI" -v
 
+rm -rf node_modules
 "$NODE_BINARY" "$NPM_CLI" ci --omit=dev
 "$NODE_BINARY" "$NPM_CLI" exec prisma generate
 "$NODE_BINARY" "$NPM_CLI" exec prisma migrate deploy
