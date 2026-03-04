@@ -28,9 +28,20 @@ export class GenerationQueueService implements OnModuleDestroy {
   }
 
   enqueueGeneration(payload: GenerationJobPayload): Promise<Job<GenerationJobPayload>> {
+    const jobId = [
+      this.sanitizeJobIdSegment(payload.projectSlug),
+      payload.triggeredBy,
+      payload.variant ?? 'auto',
+      Date.now().toString(),
+    ].join('__');
+
     return this.queue.add(GENERATION_JOB, payload, {
-      jobId: `${payload.projectSlug}:${payload.triggeredBy}:${payload.variant ?? 'auto'}:${Date.now()}`,
+      jobId,
     });
+  }
+
+  private sanitizeJobIdSegment(value: string): string {
+    return value.replace(/[^a-zA-Z0-9_-]/g, '-');
   }
 
   async onModuleDestroy(): Promise<void> {
