@@ -247,6 +247,32 @@ curl -X POST http://localhost:3000/generate \
   -d '{"projectSlug":"ai-without-complexity"}'
 ```
 
+## VPS operations
+
+Recommended production shape on a single VPS:
+
+- NestJS app behind `nginx`
+- PostgreSQL for persistent business data
+- Redis for BullMQ queues and job coordination
+- `pm2` for process supervision
+
+Useful external routes:
+
+- `GET /telegram-ai/health`
+- `POST /telegram-ai/generate`
+
+Daily PostgreSQL backup script:
+
+```bash
+bash scripts/backup-postgres.sh
+```
+
+Suggested cron:
+
+```bash
+15 3 * * * /var/www/telegramChannelAI/scripts/backup-postgres.sh >> /var/log/telegram-channel-ai-backup.log 2>&1
+```
+
 ## Retry policy
 
 - LLM calls retry with exponential backoff
