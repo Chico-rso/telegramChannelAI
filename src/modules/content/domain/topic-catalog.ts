@@ -148,6 +148,49 @@ export const TOPIC_CATALOG: TopicCatalogItem[] = [
   },
 ];
 
+export const LIST_TOPIC_CATALOG: TopicCatalogItem[] = [
+  {
+    topic: '10 AI-промптов для работы',
+    category: 'office',
+  },
+  {
+    topic: '7 промптов, которые экономят 2 часа в день',
+    category: 'office',
+  },
+  {
+    topic: '5 промптов для переписки с клиентами',
+    category: 'office',
+  },
+  {
+    topic: '10 промптов для планирования недели',
+    category: 'office',
+  },
+  {
+    topic: 'AI-промпт, который пишет письма за вас',
+    category: 'office',
+  },
+  {
+    topic: '7 промптов для жизни без хаоса',
+    category: 'home',
+  },
+  {
+    topic: '5 промптов для родителей',
+    category: 'home',
+  },
+  {
+    topic: '10 промптов для поиска идей',
+    category: 'office',
+  },
+  {
+    topic: 'AI-промпт, который помогает экономить деньги',
+    category: 'home',
+  },
+  {
+    topic: '7 домашних AI-промптов, которые реально пригождаются',
+    category: 'home',
+  },
+];
+
 export function getTopicCategory(topic: string): TopicCategory {
-  return TOPIC_CATALOG.find((item) => item.topic === topic)?.category ?? 'office';
+  return [...TOPIC_CATALOG, ...LIST_TOPIC_CATALOG].find((item) => item.topic === topic)?.category ?? 'office';
 }

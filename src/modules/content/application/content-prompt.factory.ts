@@ -60,8 +60,10 @@ export class ContentPromptFactory {
         'exampleResult should usually be under 450 characters.',
         'cta should sound natural, like a human recommendation, not a promo slogan.',
         'If postVariant is single, create one strong copyable prompt.',
-        'If postVariant is list, create a compact useful list post with 3-5 short prompts or ideas inside copyBlock, each clearly separated and easy to scan.',
-        'For list posts, the title should feel like a useful saved collection, for example 3 ideas or 5 prompts, not just one scenario.',
+        'If postVariant is list, create a compact saved-worthy collection with 5-10 short prompts or ideas inside copyBlock, each clearly separated and easy to scan.',
+        'For list posts, the title should feel like a useful saved collection, for example 5 prompts, 7 prompts, or 10 prompts.',
+        'For list posts, copyBlock should be formatted as a numbered list where each item contains a short title and a short ready-to-use prompt.',
+        'For list posts, exampleResult should show 2-3 example items or one short practical outcome from the collection.',
         'Do not repeat the same angle as recent topics.',
       ].join(' '),
     };

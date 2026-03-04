@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infra/database/prisma.service';
-import { getTopicCategory, TOPIC_CATALOG, TopicCategory } from '../domain/topic-catalog';
+import { getTopicCategory, LIST_TOPIC_CATALOG, TOPIC_CATALOG, TopicCategory } from '../domain/topic-catalog';
 import { StructuredTelegramPostVariant } from '../../../core/domain/content.types';
 
 @Injectable()
@@ -18,11 +18,12 @@ export class TopicSelectionService {
     return recentTopics.map((item) => item.topic);
   }
 
-  async selectTopic(projectId: string): Promise<string> {
+  async selectTopic(projectId: string, postVariant: StructuredTelegramPostVariant): Promise<string> {
     const recentTopics = await this.getRecentTopics(projectId, 21);
     const usedTopics = new Set(recentTopics);
-    const availableTopics = TOPIC_CATALOG.filter((item) => !usedTopics.has(item.topic));
-    const source = availableTopics.length > 0 ? availableTopics : TOPIC_CATALOG;
+    const catalog = postVariant === 'list' ? LIST_TOPIC_CATALOG : TOPIC_CATALOG;
+    const availableTopics = catalog.filter((item) => !usedTopics.has(item.topic));
+    const source = availableTopics.length > 0 ? availableTopics : catalog;
     const preferredCategory = this.getPreferredCategory(recentTopics);
     const categoryPool = source.filter((item) => item.category === preferredCategory);
     const pool = categoryPool.length > 0 ? categoryPool : source;
@@ -36,11 +37,23 @@ export class TopicSelectionService {
   }
 
   async getPostVariant(projectId: string): Promise<StructuredTelegramPostVariant> {
-    const totalPosts = await this.prismaService.generatedContent.count({
-      where: { projectId },
+    const lastListPost = await this.prismaService.generatedContent.findFirst({
+      where: {
+        projectId,
+        topic: {
+          in: LIST_TOPIC_CATALOG.map((item) => item.topic),
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true },
     });
 
-    return totalPosts > 0 && totalPosts % 4 === 0 ? 'list' : 'single';
+    if (!lastListPost) {
+      return 'list';
+    }
+
+    const hoursSinceLastList = (Date.now() - lastListPost.createdAt.getTime()) / (1000 * 60 * 60);
+    return hoursSinceLastList >= 48 ? 'list' : 'single';
   }
 
   private getPreferredCategory(recentTopics: string[]): TopicCategory {
