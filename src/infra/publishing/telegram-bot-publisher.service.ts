@@ -12,6 +12,12 @@ type TelegramResponse = {
   ok: boolean;
   result?: {
     message_id: number;
+    chat?: {
+      username?: string;
+    };
+    sender_chat?: {
+      username?: string;
+    };
   };
   description?: string;
 };
@@ -52,6 +58,19 @@ export class TelegramBotPublisherService implements ContentPublisherPort {
           throw new Error(payload.description ?? 'Telegram sendMessage request failed');
         }
 
+        try {
+          await this.attachShareButtonIfPossible(input.channelId, payload.result);
+        } catch (error) {
+          this.logger.warn(
+            {
+              error: error instanceof Error ? error.message : 'Unknown error',
+              channelId: input.channelId,
+              messageId: payload.result.message_id,
+            },
+            'Telegram post was published, but share button was not attached',
+          );
+        }
+
         return {
           provider: 'telegram',
           externalMessageId: String(payload.result.message_id),
@@ -72,5 +91,51 @@ export class TelegramBotPublisherService implements ContentPublisherPort {
         },
       },
     );
+  }
+
+  private async attachShareButtonIfPossible(
+    channelId: string,
+    result: NonNullable<TelegramResponse['result']>,
+  ): Promise<void> {
+    const publicUsername = this.resolvePublicUsername(channelId, result);
+    if (!publicUsername) {
+      return;
+    }
+
+    const messageUrl = `https://t.me/${publicUsername}/${result.message_id}`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(messageUrl)}&text=${encodeURIComponent('Если было полезно — перешлите другу 👍')}`;
+
+    const response = await fetch(
+      `https://api.telegram.org/bot${this.botToken}/editMessageReplyMarkup`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: channelId,
+          message_id: result.message_id,
+          reply_markup: {
+            inline_keyboard: [[{ text: 'Переслать другу ↗', url: shareUrl }]],
+          },
+        }),
+      },
+    );
+
+    const payload = (await response.json()) as TelegramResponse;
+    if (!response.ok || !payload.ok) {
+      throw new Error(payload.description ?? 'Telegram editMessageReplyMarkup request failed');
+    }
+  }
+
+  private resolvePublicUsername(
+    channelId: string,
+    result: NonNullable<TelegramResponse['result']>,
+  ): string | null {
+    if (channelId.startsWith('@')) {
+      return channelId.slice(1);
+    }
+
+    return result.chat?.username ?? result.sender_chat?.username ?? null;
   }
 }

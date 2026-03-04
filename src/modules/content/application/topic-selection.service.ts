@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infra/database/prisma.service';
 import { getTopicCategory, TOPIC_CATALOG, TopicCategory } from '../domain/topic-catalog';
+import { StructuredTelegramPostVariant } from '../../../core/domain/content.types';
 
 @Injectable()
 export class TopicSelectionService {
@@ -32,6 +33,14 @@ export class TopicSelectionService {
 
   getTopicCategory(topic: string): TopicCategory {
     return getTopicCategory(topic);
+  }
+
+  async getPostVariant(projectId: string): Promise<StructuredTelegramPostVariant> {
+    const totalPosts = await this.prismaService.generatedContent.count({
+      where: { projectId },
+    });
+
+    return totalPosts > 0 && totalPosts % 4 === 0 ? 'list' : 'single';
   }
 
   private getPreferredCategory(recentTopics: string[]): TopicCategory {

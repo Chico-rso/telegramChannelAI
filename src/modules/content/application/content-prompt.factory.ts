@@ -10,6 +10,7 @@ export class ContentPromptFactory {
     language: string;
     topic: string;
     contentFocus: 'office' | 'home';
+    postVariant: 'single' | 'list';
     recentTopics: string[];
   }): GeneratePostInput {
     const recentTopicsBlock =
@@ -25,7 +26,8 @@ export class ContentPromptFactory {
         'Each post must solve one everyday problem and feel immediately useful.',
         'Do not write like a marketing brochure or a generic AI tutorial.',
         'Avoid clichés such as "за пару минут", "сделает всю работу за вас", "прямо сейчас", unless absolutely necessary.',
-        'No hashtags, no emojis, no buzzwords, no warnings unless the topic truly requires one.',
+        'No hashtags or buzzwords.',
+        'You may use 1-3 simple emojis in section labels or CTA, but never overload the post with emojis.',
         'The title must describe a pain, awkward situation, or messy routine. Do not start the title with "Как".',
         'The explanation must be 2 short sentences in plain Russian.',
         'The copy block must be a ready-to-use prompt in Russian that a reader can paste into ChatGPT or another AI tool.',
@@ -41,6 +43,7 @@ export class ContentPromptFactory {
         `Language: ${input.language}.`,
         `Topic: ${input.topic}.`,
         `Content focus: ${input.contentFocus}.`,
+        `Post variant: ${input.postVariant}.`,
         recentTopicsBlock,
         'Create a short Telegram post with these sections:',
         '1. title: a concrete pain/problem headline with a human, everyday feel.',
@@ -56,6 +59,9 @@ export class ContentPromptFactory {
         'copyBlock should usually be 6-10 lines, not a wall of text.',
         'exampleResult should usually be under 450 characters.',
         'cta should sound natural, like a human recommendation, not a promo slogan.',
+        'If postVariant is single, create one strong copyable prompt.',
+        'If postVariant is list, create a compact useful list post with 3-5 short prompts or ideas inside copyBlock, each clearly separated and easy to scan.',
+        'For list posts, the title should feel like a useful saved collection, for example 3 ideas or 5 prompts, not just one scenario.',
         'Do not repeat the same angle as recent topics.',
       ].join(' '),
     };

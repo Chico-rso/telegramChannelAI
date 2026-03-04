@@ -12,18 +12,21 @@ function escapeHtml(value: string): string {
 @Injectable()
 export class PublishingFormatterService {
   toTelegramMessage(post: StructuredTelegramPost): string {
+    const copyLabel = post.variant === 'list' ? '🧩 Сохраните подборку' : '👇 Скопируйте и вставьте';
+    const exampleLabel = post.variant === 'list' ? '💡 Что получится' : '💡 Пример результата';
+
     return [
-      `<b>${escapeHtml(post.title)}</b>`,
+      `<b>❗ ${escapeHtml(post.title)}</b>`,
       '',
       `${escapeHtml(post.explanation)}`,
       '',
-      '<b>Скопируйте и вставьте:</b>',
+      `<b>${copyLabel}</b>`,
       `<pre>${escapeHtml(post.copyBlock)}</pre>`,
       '',
-      '<b>Пример результата:</b>',
+      `<b>${exampleLabel}</b>`,
       `${escapeHtml(post.exampleResult)}`,
       '',
-      `${escapeHtml(post.cta)}`,
+      `🔁 ${escapeHtml(post.cta)}`,
     ].join('\n');
   }
 }

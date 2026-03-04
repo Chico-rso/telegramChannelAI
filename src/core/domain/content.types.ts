@@ -1,5 +1,8 @@
+export type StructuredTelegramPostVariant = 'single' | 'list';
+
 export interface StructuredTelegramPost {
   topic: string;
+  variant: StructuredTelegramPostVariant;
   title: string;
   explanation: string;
   copyBlock: string;

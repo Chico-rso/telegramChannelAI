@@ -11,6 +11,7 @@ import { withRetry } from '../../core/utils/retry.util';
 
 type OpenAiJsonResponse = {
   topic: string;
+  variant?: 'single' | 'list';
   title: string;
   explanation: string;
   copyBlock: string;
@@ -69,6 +70,7 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
         const parsed = JSON.parse(content) as OpenAiJsonResponse;
         return {
           topic: parsed.topic,
+          variant: parsed.variant ?? 'single',
           title: parsed.title,
           explanation: parsed.explanation,
           copyBlock: parsed.copyBlock,
@@ -117,13 +119,14 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
           additionalProperties: false,
           properties: {
             topic: { type: 'string' },
+            variant: { type: 'string', enum: ['single', 'list'] },
             title: { type: 'string' },
             explanation: { type: 'string' },
             copyBlock: { type: 'string' },
             exampleResult: { type: 'string' },
             cta: { type: 'string' },
           },
-          required: ['topic', 'title', 'explanation', 'copyBlock', 'exampleResult', 'cta'],
+          required: ['topic', 'variant', 'title', 'explanation', 'copyBlock', 'exampleResult', 'cta'],
         },
       },
     } as never;
