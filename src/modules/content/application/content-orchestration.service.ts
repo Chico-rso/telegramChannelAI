@@ -68,7 +68,7 @@ export class ContentOrchestrationService {
     const generatedContent = await this.contentPersistenceService.createDraft({
       projectId: project.id,
       topic,
-      model: this.configService.get<string>('OPENAI_MODEL', 'gpt-4.1-mini'),
+      model: this.configService.get<string>('LLM_MODEL', 'gpt-4.1-mini'),
       post,
       body: message,
     });

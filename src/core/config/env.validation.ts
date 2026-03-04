@@ -9,6 +9,17 @@ function requireString(env: EnvShape, key: string): string {
   return String(value);
 }
 
+function requireAnyString(env: EnvShape, keys: string[]): string {
+  for (const key of keys) {
+    const value = env[key];
+    if (value) {
+      return String(value);
+    }
+  }
+
+  throw new Error(`One of the environment variables ${keys.join(', ')} is required.`);
+}
+
 function toNumber(env: EnvShape, key: string, fallback: number): number {
   const raw = env[key];
   if (!raw) {
@@ -24,10 +35,18 @@ function toNumber(env: EnvShape, key: string, fallback: number): number {
 }
 
 export function validateEnv(config: EnvShape): EnvShape {
+  const llmApiKey = requireAnyString(config, ['LLM_API_KEY', 'OPENAI_API_KEY']);
+  const llmModel = String(config.LLM_MODEL ?? config.OPENAI_MODEL ?? 'gpt-4.1-mini');
+
   return {
     ...config,
     DATABASE_URL: requireString(config, 'DATABASE_URL'),
-    OPENAI_API_KEY: requireString(config, 'OPENAI_API_KEY'),
+    LLM_PROVIDER: String(config.LLM_PROVIDER ?? 'openai-compatible'),
+    LLM_API_KEY: llmApiKey,
+    LLM_BASE_URL: config.LLM_BASE_URL ? String(config.LLM_BASE_URL) : undefined,
+    LLM_MODEL: llmModel,
+    OPENAI_API_KEY: config.OPENAI_API_KEY ? String(config.OPENAI_API_KEY) : llmApiKey,
+    OPENAI_MODEL: config.OPENAI_MODEL ? String(config.OPENAI_MODEL) : llmModel,
     TELEGRAM_BOT_TOKEN: requireString(config, 'TELEGRAM_BOT_TOKEN'),
     TELEGRAM_CHANNEL_ID: requireString(config, 'TELEGRAM_CHANNEL_ID'),
     DEFAULT_USER_EMAIL: requireString(config, 'DEFAULT_USER_EMAIL'),

@@ -128,8 +128,12 @@ REDIS_PORT=6379
 REDIS_PASSWORD=
 REDIS_DB=0
 
+LLM_PROVIDER=openai-compatible
+LLM_API_KEY=
+LLM_BASE_URL=
+LLM_MODEL=gpt-4.1-mini
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
+OPENAI_MODEL=
 
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHANNEL_ID=@your_channel_or_-1001234567890
@@ -150,6 +154,30 @@ JOB_BACKOFF_MS=15000
 CONTENT_TONE=clear, practical, friendly
 CONTENT_AUDIENCE=ordinary people using AI at work and at home
 ```
+
+### LLM providers
+
+Default setup works with any OpenAI-compatible endpoint.
+
+OpenAI example:
+
+```bash
+LLM_PROVIDER=openai-compatible
+LLM_API_KEY=your_openai_api_key
+LLM_BASE_URL=
+LLM_MODEL=gpt-5-mini
+```
+
+GLM-5 example:
+
+```bash
+LLM_PROVIDER=openai-compatible
+LLM_API_KEY=your_glm_api_key
+LLM_BASE_URL=https://open.bigmodel.cn/api/paas/v4/
+LLM_MODEL=glm-5
+```
+
+Legacy `OPENAI_API_KEY` / `OPENAI_MODEL` variables are still supported as fallback.
 
 ## How to get Telegram bot token
 
@@ -297,8 +325,12 @@ Recommended Railway layout:
 
 Set these app variables in Railway:
 
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL`
+- `LLM_PROVIDER`
+- `LLM_API_KEY`
+- `LLM_BASE_URL`
+- `LLM_MODEL`
+- `OPENAI_API_KEY` fallback
+- `OPENAI_MODEL` fallback
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHANNEL_ID`
 - `DEFAULT_USER_EMAIL`

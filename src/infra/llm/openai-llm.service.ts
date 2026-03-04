@@ -22,16 +22,19 @@ type OpenAiJsonResponse = {
 export class OpenAiLlmService implements LlmContentGeneratorPort {
   private readonly client: OpenAI;
   private readonly model: string;
+  private readonly provider: string;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(OpenAiLlmService.name);
+    this.provider = this.configService.get<string>('LLM_PROVIDER', 'openai-compatible');
     this.client = new OpenAI({
-      apiKey: this.configService.getOrThrow<string>('OPENAI_API_KEY'),
+      apiKey: this.configService.getOrThrow<string>('LLM_API_KEY'),
+      baseURL: this.configService.get<string>('LLM_BASE_URL') || undefined,
     });
-    this.model = this.configService.get<string>('OPENAI_MODEL', 'gpt-4.1-mini');
+    this.model = this.configService.get<string>('LLM_MODEL', 'gpt-4.1-mini');
   }
 
   async generateStructuredPost(input: GeneratePostInput): Promise<StructuredTelegramPost> {
@@ -99,6 +102,8 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
           this.logger.warn(
             {
               attempt,
+              provider: this.provider,
+              model: this.model,
               error: error instanceof Error ? error.message : 'Unknown error',
             },
             'Retrying LLM generation',
