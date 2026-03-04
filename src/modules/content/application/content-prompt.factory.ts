@@ -11,6 +11,7 @@ export class ContentPromptFactory {
     topic: string;
     contentFocus: 'office' | 'home';
     postVariant: 'single' | 'list';
+    postStyle: 'standard' | 'ultra-short';
     recentTopics: string[];
   }): GeneratePostInput {
     const recentTopicsBlock =
@@ -28,7 +29,8 @@ export class ContentPromptFactory {
         'Avoid clichés such as "за пару минут", "сделает всю работу за вас", "прямо сейчас", unless absolutely necessary.',
         'No hashtags or buzzwords.',
         'You may use 1-3 simple emojis in section labels or CTA, but never overload the post with emojis.',
-        'The title must describe a pain, awkward situation, or messy routine. Do not start the title with "Как".',
+        'The title must describe a pain, awkward situation, messy routine, or a clear practical payoff. Do not start the title with "Как".',
+        'The best titles feel specific and useful: saved time, reduced stress, clearer communication, less chaos, fewer forgotten details.',
         'The explanation must be 2 short sentences in plain Russian.',
         'The copy block must be a ready-to-use prompt in Russian that a reader can paste into ChatGPT or another AI tool.',
         'The example result must look like a believable fragment of the AI output, not a theory or explanation of what AI will do.',
@@ -44,6 +46,7 @@ export class ContentPromptFactory {
         `Topic: ${input.topic}.`,
         `Content focus: ${input.contentFocus}.`,
         `Post variant: ${input.postVariant}.`,
+        `Post style: ${input.postStyle}.`,
         recentTopicsBlock,
         'Create a short Telegram post with these sections:',
         '1. title: a concrete pain/problem headline with a human, everyday feel.',
@@ -56,14 +59,17 @@ export class ContentPromptFactory {
         'If contentFocus is office, use work situations: clients, meetings, tasks, messages, documents, deadlines.',
         'If contentFocus is home, use family, shopping, budget, planning, travel, home chores, everyday decisions.',
         'Keep the whole post compact enough for Telegram reading on a phone screen.',
-        'copyBlock should usually be 6-10 lines, not a wall of text.',
+        'copyBlock should usually be 5-9 lines, not a wall of text.',
         'exampleResult should usually be under 450 characters.',
         'cta should sound natural, like a human recommendation, not a promo slogan.',
         'If postVariant is single, create one strong copyable prompt.',
-        'If postVariant is list, create a compact saved-worthy collection with 5-10 short prompts or ideas inside copyBlock, each clearly separated and easy to scan.',
-        'For list posts, the title should feel like a useful saved collection, for example 5 prompts, 7 prompts, or 10 prompts.',
+        'If postVariant is list, create a compact saved-worthy collection with a natural number of items for the topic, usually 4-8.',
+        'For narrow topics, 3-5 items is enough. For broad topics, 6-9 items is enough. Do not stretch the list just to hit a round number.',
+        'For list posts, the title should feel like a useful saved collection and must match the real number of items in copyBlock.',
         'For list posts, copyBlock should be formatted as a numbered list where each item contains a short title and a short ready-to-use prompt.',
         'For list posts, exampleResult should show 2-3 example items or one short practical outcome from the collection.',
+        'If postStyle is ultra-short and postVariant is single, make the post noticeably shorter than usual: one sharp explanation sentence, a compact 3-5 line prompt, a 2-3 line example, and a very short CTA.',
+        'Ultra-short posts should feel punchy, practical, and easy to save in under 15 seconds of reading.',
         'Do not repeat the same angle as recent topics.',
       ].join(' '),
     };

@@ -50,6 +50,10 @@ export class ContentOrchestrationService {
 
     const recentTopics = await this.topicSelectionService.getRecentTopics(project.id);
     const postVariant = payload.variant ?? (await this.topicSelectionService.getPostVariant(project.id));
+    const postStyle =
+      postVariant === 'single'
+        ? await this.topicSelectionService.getSinglePostStyle(project.id)
+        : 'standard';
     const topic = await this.topicSelectionService.selectTopic(project.id, postVariant);
     const contentFocus = this.topicSelectionService.getTopicCategory(topic);
     const prompt = this.contentPromptFactory.build({
@@ -62,6 +66,7 @@ export class ContentOrchestrationService {
       topic,
       contentFocus,
       postVariant,
+      postStyle,
       recentTopics,
     });
     const post = await this.llmContentGenerator.generateStructuredPost(prompt);

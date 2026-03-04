@@ -56,6 +56,20 @@ export class TopicSelectionService {
     return hoursSinceLastList >= 48 ? 'list' : 'single';
   }
 
+  async getSinglePostStyle(projectId: string): Promise<'standard' | 'ultra-short'> {
+    const singlePostCount = await this.prismaService.generatedContent.count({
+      where: {
+        projectId,
+        topic: {
+          notIn: LIST_TOPIC_CATALOG.map((item) => item.topic),
+        },
+      },
+    });
+
+    const nextSinglePostNumber = singlePostCount + 1;
+    return nextSinglePostNumber % 5 === 0 ? 'ultra-short' : 'standard';
+  }
+
   private getPreferredCategory(recentTopics: string[]): TopicCategory {
     const latestTopic = recentTopics[0];
     if (!latestTopic) {
