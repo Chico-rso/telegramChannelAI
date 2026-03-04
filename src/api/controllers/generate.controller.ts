@@ -20,6 +20,7 @@ export class GenerateController {
     const job = await this.generationQueueService.enqueueGeneration({
       projectSlug,
       triggeredBy: 'manual',
+      variant: dto.variant,
     });
 
     return {

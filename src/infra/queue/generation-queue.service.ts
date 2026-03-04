@@ -29,7 +29,7 @@ export class GenerationQueueService implements OnModuleDestroy {
 
   enqueueGeneration(payload: GenerationJobPayload): Promise<Job<GenerationJobPayload>> {
     return this.queue.add(GENERATION_JOB, payload, {
-      jobId: `${payload.projectSlug}:${payload.triggeredBy}:${Date.now()}`,
+      jobId: `${payload.projectSlug}:${payload.triggeredBy}:${payload.variant ?? 'auto'}:${Date.now()}`,
     });
   }
 

@@ -49,7 +49,7 @@ export class ContentOrchestrationService {
     }
 
     const recentTopics = await this.topicSelectionService.getRecentTopics(project.id);
-    const postVariant = await this.topicSelectionService.getPostVariant(project.id);
+    const postVariant = payload.variant ?? (await this.topicSelectionService.getPostVariant(project.id));
     const topic = await this.topicSelectionService.selectTopic(project.id, postVariant);
     const contentFocus = this.topicSelectionService.getTopicCategory(topic);
     const prompt = this.contentPromptFactory.build({

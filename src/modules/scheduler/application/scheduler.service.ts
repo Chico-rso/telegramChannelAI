@@ -6,7 +6,7 @@ import { GenerationQueueService } from '../../../infra/queue/generation-queue.se
 
 @Injectable()
 export class SchedulerService implements OnModuleInit, OnModuleDestroy {
-  private task?: ScheduledTask;
+  private tasks: ScheduledTask[] = [];
 
   constructor(
     private readonly configService: ConfigService,
@@ -17,39 +17,61 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit(): void {
-    const expression = this.configService.get<string>('DAILY_GENERATION_CRON', '0 9 * * *');
     const timezone = this.configService.get<string>('DEFAULT_PROJECT_TIMEZONE', 'UTC');
-    if (!cron.validate(expression)) {
-      throw new Error(`Invalid DAILY_GENERATION_CRON expression: ${expression}`);
-    }
-
-    this.task = cron.schedule(
-      expression,
-      async () => {
-        const projectSlug = this.configService.getOrThrow<string>('DEFAULT_PROJECT_SLUG');
-
-        try {
-          this.logger.info({ projectSlug }, 'Scheduling daily generation job');
-          await this.generationQueueService.enqueueGeneration({
-            projectSlug,
-            triggeredBy: 'cron',
-          });
-        } catch (error) {
-          this.logger.error(
-            {
-              error: error instanceof Error ? error.message : 'Unknown error',
-            },
-            'Failed to enqueue daily generation job',
-          );
-        }
+    const schedules = [
+      {
+        expression: this.configService.get<string>('STANDARD_GENERATION_CRON', '0 10 * * *'),
+        variant: 'single' as const,
+        label: 'Standard scheduler registered',
       },
-      { timezone },
-    );
+      {
+        expression: this.configService.get<string>('LIST_GENERATION_CRON', '0 20 */2 * *'),
+        variant: 'list' as const,
+        label: 'List scheduler registered',
+      },
+    ];
 
-    this.logger.info({ expression, timezone }, 'Daily scheduler registered');
+    for (const schedule of schedules) {
+      if (!cron.validate(schedule.expression)) {
+        throw new Error(`Invalid cron expression: ${schedule.expression}`);
+      }
+
+      const task = cron.schedule(
+        schedule.expression,
+        async () => {
+          const projectSlug = this.configService.getOrThrow<string>('DEFAULT_PROJECT_SLUG');
+
+          try {
+            this.logger.info({ projectSlug, variant: schedule.variant }, 'Scheduling generation job');
+            await this.generationQueueService.enqueueGeneration({
+              projectSlug,
+              triggeredBy: 'cron',
+              variant: schedule.variant,
+            });
+          } catch (error) {
+            this.logger.error(
+              {
+                variant: schedule.variant,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              },
+              'Failed to enqueue scheduled generation job',
+            );
+          }
+        },
+        { timezone },
+      );
+
+      this.tasks.push(task);
+      this.logger.info(
+        { expression: schedule.expression, timezone, variant: schedule.variant },
+        schedule.label,
+      );
+    }
   }
 
   onModuleDestroy(): void {
-    this.task?.stop();
+    for (const task of this.tasks) {
+      task.stop();
+    }
   }
 }

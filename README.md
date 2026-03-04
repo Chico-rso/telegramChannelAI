@@ -146,7 +146,8 @@ DEFAULT_PROJECT_SLUG=ai-without-complexity
 DEFAULT_PROJECT_TIMEZONE=Europe/Moscow
 DEFAULT_PROJECT_LANGUAGE=ru
 
-DAILY_GENERATION_CRON=0 9 * * *
+STANDARD_GENERATION_CRON=0 10 * * *
+LIST_GENERATION_CRON=0 20 */2 * *
 QUEUE_NAME=content-generation
 JOB_ATTEMPTS=5
 JOB_BACKOFF_MS=15000
@@ -245,6 +246,15 @@ curl -X POST http://localhost:3000/generate \
   -H "Content-Type: application/json" \
   -H "x-api-key: change_me_for_production" \
   -d '{"projectSlug":"ai-without-complexity"}'
+```
+
+Manual list-post trigger:
+
+```bash
+curl -X POST http://localhost:3000/generate \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: change_me_for_production" \
+  -d '{"projectSlug":"ai-without-complexity","variant":"list"}'
 ```
 
 ## VPS operations

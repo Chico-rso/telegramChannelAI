@@ -13,4 +13,5 @@ export interface StructuredTelegramPost {
 export interface GenerationJobPayload {
   projectSlug: string;
   triggeredBy: 'cron' | 'manual';
+  variant?: StructuredTelegramPostVariant;
 }
