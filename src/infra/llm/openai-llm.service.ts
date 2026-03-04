@@ -52,26 +52,7 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
               content: input.userPrompt,
             },
           ],
-          response_format: {
-            type: 'json_schema',
-            json_schema: {
-              name: 'telegram_ai_post',
-              strict: true,
-              schema: {
-                type: 'object',
-                additionalProperties: false,
-                properties: {
-                  topic: { type: 'string' },
-                  title: { type: 'string' },
-                  explanation: { type: 'string' },
-                  copyBlock: { type: 'string' },
-                  exampleResult: { type: 'string' },
-                  cta: { type: 'string' },
-                },
-                required: ['topic', 'title', 'explanation', 'copyBlock', 'exampleResult', 'cta'],
-              },
-            },
-          } as never,
+          response_format: this.getResponseFormat(),
         };
 
         if (!this.isGpt5FamilyModel(this.model)) {
@@ -115,5 +96,36 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
 
   private isGpt5FamilyModel(model: string): boolean {
     return /^gpt-5([.-]|$)/i.test(model);
+  }
+
+  private isGlmFamilyModel(model: string): boolean {
+    return /^glm([.-]|$)/i.test(model);
+  }
+
+  private getResponseFormat(): OpenAI.Chat.Completions.ChatCompletionCreateParams['response_format'] {
+    if (this.isGlmFamilyModel(this.model)) {
+      return { type: 'json_object' } as never;
+    }
+
+    return {
+      type: 'json_schema',
+      json_schema: {
+        name: 'telegram_ai_post',
+        strict: true,
+        schema: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            topic: { type: 'string' },
+            title: { type: 'string' },
+            explanation: { type: 'string' },
+            copyBlock: { type: 'string' },
+            exampleResult: { type: 'string' },
+            cta: { type: 'string' },
+          },
+          required: ['topic', 'title', 'explanation', 'copyBlock', 'exampleResult', 'cta'],
+        },
+      },
+    } as never;
   }
 }
