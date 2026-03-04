@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infra/database/prisma.service';
-import { TOPIC_CATALOG } from '../domain/topic-catalog';
+import { getTopicCategory, TOPIC_CATALOG, TopicCategory } from '../domain/topic-catalog';
 
 @Injectable()
 export class TopicSelectionService {
@@ -20,10 +20,26 @@ export class TopicSelectionService {
   async selectTopic(projectId: string): Promise<string> {
     const recentTopics = await this.getRecentTopics(projectId, 21);
     const usedTopics = new Set(recentTopics);
-    const availableTopics = TOPIC_CATALOG.filter((topic) => !usedTopics.has(topic));
+    const availableTopics = TOPIC_CATALOG.filter((item) => !usedTopics.has(item.topic));
     const source = availableTopics.length > 0 ? availableTopics : TOPIC_CATALOG;
-    const randomIndex = Math.floor(Math.random() * source.length);
+    const preferredCategory = this.getPreferredCategory(recentTopics);
+    const categoryPool = source.filter((item) => item.category === preferredCategory);
+    const pool = categoryPool.length > 0 ? categoryPool : source;
+    const randomIndex = Math.floor(Math.random() * pool.length);
 
-    return source[randomIndex];
+    return pool[randomIndex].topic;
+  }
+
+  getTopicCategory(topic: string): TopicCategory {
+    return getTopicCategory(topic);
+  }
+
+  private getPreferredCategory(recentTopics: string[]): TopicCategory {
+    const latestTopic = recentTopics[0];
+    if (!latestTopic) {
+      return Math.random() > 0.5 ? 'office' : 'home';
+    }
+
+    return getTopicCategory(latestTopic) === 'office' ? 'home' : 'office';
   }
 }

@@ -9,6 +9,7 @@ export class ContentPromptFactory {
     tone: string;
     language: string;
     topic: string;
+    contentFocus: 'office' | 'home';
     recentTopics: string[];
   }): GeneratePostInput {
     const recentTopicsBlock =
@@ -39,15 +40,22 @@ export class ContentPromptFactory {
         `Tone: ${input.tone}.`,
         `Language: ${input.language}.`,
         `Topic: ${input.topic}.`,
+        `Content focus: ${input.contentFocus}.`,
         recentTopicsBlock,
         'Create a short Telegram post with these sections:',
         '1. title: a concrete pain/problem headline with a human, everyday feel.',
         '2. explanation: 2 short sentences that explain why the problem happens and how AI helps.',
         '3. copyBlock: one concrete prompt a reader can paste directly without editing, or with 1-2 obvious placeholders.',
-        '4. exampleResult: a concise, realistic fragment of the result in 3-6 lines.',
+        '4. exampleResult: a concise, realistic fragment of the result in 3-5 lines.',
         '5. cta: a short low-pressure invitation to try the prompt.',
         'Keep it practical, simple, and usable by office workers and people at home.',
         'Prefer specific situations: messages, shopping, planning, family chores, meetings, reminders, comparison, rewriting.',
+        'If contentFocus is office, use work situations: clients, meetings, tasks, messages, documents, deadlines.',
+        'If contentFocus is home, use family, shopping, budget, planning, travel, home chores, everyday decisions.',
+        'Keep the whole post compact enough for Telegram reading on a phone screen.',
+        'copyBlock should usually be 6-10 lines, not a wall of text.',
+        'exampleResult should usually be under 450 characters.',
+        'cta should sound natural, like a human recommendation, not a promo slogan.',
         'Do not repeat the same angle as recent topics.',
       ].join(' '),
     };

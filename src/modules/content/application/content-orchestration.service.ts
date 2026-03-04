@@ -50,6 +50,7 @@ export class ContentOrchestrationService {
 
     const recentTopics = await this.topicSelectionService.getRecentTopics(project.id);
     const topic = await this.topicSelectionService.selectTopic(project.id);
+    const contentFocus = this.topicSelectionService.getTopicCategory(topic);
     const prompt = this.contentPromptFactory.build({
       projectName: project.name,
       targetAudience:
@@ -58,6 +59,7 @@ export class ContentOrchestrationService {
       tone: project.contentTone ?? this.configService.get<string>('CONTENT_TONE', 'clear and practical'),
       language: project.language,
       topic,
+      contentFocus,
       recentTopics,
     });
     const post = await this.llmContentGenerator.generateStructuredPost(prompt);
