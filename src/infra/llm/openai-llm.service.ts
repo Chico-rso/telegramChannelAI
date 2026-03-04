@@ -37,9 +37,8 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
   async generateStructuredPost(input: GeneratePostInput): Promise<StructuredTelegramPost> {
     return withRetry(
       async () => {
-        const completion = await this.client.chat.completions.create({
+        const completionRequest: OpenAI.Chat.Completions.ChatCompletionCreateParams = {
           model: this.model,
-          temperature: 0.8,
           messages: [
             {
               role: 'system',
@@ -70,7 +69,13 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
               },
             },
           } as never,
-        });
+        };
+
+        if (!this.isGpt5FamilyModel(this.model)) {
+          completionRequest.temperature = 0.8;
+        }
+
+        const completion = await this.client.chat.completions.create(completionRequest);
 
         const content = completion.choices[0]?.message?.content;
         if (!content) {
@@ -101,5 +106,9 @@ export class OpenAiLlmService implements LlmContentGeneratorPort {
         },
       },
     );
+  }
+
+  private isGpt5FamilyModel(model: string): boolean {
+    return /^gpt-5([.-]|$)/i.test(model);
   }
 }
