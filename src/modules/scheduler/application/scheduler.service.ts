@@ -25,7 +25,7 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
         label: 'Standard scheduler registered',
       },
       {
-        expression: this.configService.get<string>('LIST_GENERATION_CRON', '0 20 */2 * *'),
+        expression: this.configService.get<string>('LIST_GENERATION_CRON', '0 20 * * *'),
         variant: 'list' as const,
         label: 'List scheduler registered',
       },
